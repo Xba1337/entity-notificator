@@ -42,15 +42,17 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             claims = jwtTokenManager.getLoginFromToken(token);
 
             Integer userId = claims.get("id", Integer.class);
+            String login = claims.getSubject();
             String role = claims.get("role", String.class);
+            log.info("JWT claims: {}", claims);
 
-            if (userId == null || role == null) {
+            if (userId == null|| login == null || role == null) {
                 log.warn("JWT token does not contain required claims");
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            UserPrincipal principal = new UserPrincipal(userId, role);
+            UserPrincipal principal = new UserPrincipal(userId, login, role);
 
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken
