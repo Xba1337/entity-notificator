@@ -19,5 +19,17 @@ public interface EventNotificatorRepository extends JpaRepository<EventNotificat
             @Param("weekAgo") LocalDateTime weekAgo
     );
 
+    @Modifying
+    @Query(value = """
+            UPDATE EventNotificatorEntity e
+            SET e.read = true
+            WHERE e.userLogin = :userLogin
+            AND e.id in :ids
+            """)
+    int markNotificationsAsRead(
+            @Param("userLogin") String userLogin,
+            @Param("ids") List<Integer> ids
+    );
+
     List<EventNotificatorEntity> findAll();
 }

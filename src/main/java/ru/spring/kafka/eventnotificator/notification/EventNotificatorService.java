@@ -42,29 +42,26 @@ public class EventNotificatorService {
     }
 
     @Transactional
-    public void markAllNotificationsAsRead(String login) {
+    public void markAllNotificationsAsRead(String login, NotificationsMarkAsRead notificationsMarkAsRead) {
         log.info("Marking notification");
 
-        List<EventNotificatorEntity> eventNotificatorEntities = eventNotificatorRepository.findAll();
+        List<Integer> notificationIdsForRead = notificationsMarkAsRead.notificationsIds();
+        if (notificationIdsForRead.isEmpty()) {
+            throw new IllegalArgumentException("Invalid request parameters");
+        }
 
-        List<EventNotificatorEntity> notifications = eventNotificatorEntities.stream()
-                .filter(n -> n.getParticipants() != null && n.getParticipants().contains(login))
-                .peek(n -> n.setRead(true))
-                .toList();
+        int numberOfUpdatedNotifications = eventNotificatorRepository.markNotificationsAsRead(login, notificationIdsForRead);
 
-        eventNotificatorRepository.saveAll(notifications);
-
-        log.info("Found {} notifications", notifications.size());
-
+        log.info("Updated {} notifications", numberOfUpdatedNotifications);
     }
 
+    @Transactional
     public void saveNotification(EventChangeMessage notification){
         log.info("Saving notification");
 
-        EventNotificatorEntity eventNotificatorEntity =
-                eventNotificatorMapper.toEntity(notification);
+        List<EventNotificatorEntity> eventNotificatorEntities = eventNotificatorMapper.toEntities(notification);
 
-        eventNotificatorRepository.save(eventNotificatorEntity);
-        log.info("Notification saved with id {}", eventNotificatorEntity.getId());
+        List<EventNotificatorEntity> listOfSavedEntities = eventNotificatorRepository.saveAll(eventNotificatorEntities);
+        log.info("Saved {} notifications", listOfSavedEntities.size());
     }
 }

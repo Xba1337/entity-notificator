@@ -1,5 +1,6 @@
 package ru.spring.kafka.eventnotificator.notification;
 
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class EventNotificatorController {
                 .getAuthentication()
                 .getPrincipal();
 
-        String authenticatedUserLogin = userPrincipal.role();
+        String authenticatedUserLogin = userPrincipal.login();
 
         List<EventNotificator> notifications = eventNotificatorService.getNotifications(authenticatedUserLogin);
 
@@ -44,16 +45,18 @@ public class EventNotificatorController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> markAllNotificationsAsRead() {
+    public ResponseEntity<Void> markAllNotificationsAsRead(
+            @RequestBody @Valid NotificationsMarkAsRead request
+            ) {
         log.info("Mark all notifications as read");
 
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        String authenticatedUserLogin = userPrincipal.role();
+        String authenticatedUserLogin = userPrincipal.login();
 
-        eventNotificatorService.markAllNotificationsAsRead(authenticatedUserLogin);
+        eventNotificatorService.markAllNotificationsAsRead(authenticatedUserLogin, request);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
