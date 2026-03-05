@@ -5,7 +5,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -20,18 +19,13 @@ public class EventNotificatorEntity {
 
     private Integer changedByUserId;
 
+    private String userLogin;
+
     private Integer ownerId;
 
     @Column(columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, FieldChange<?>> changes;
-
-    @ElementCollection
-    @CollectionTable(
-            name = "participants",
-            joinColumns = @JoinColumn(name = "event_change_id")
-    )
-    private List<String> participants;
 
     private LocalDateTime createdAt;
 
@@ -40,13 +34,13 @@ public class EventNotificatorEntity {
     public EventNotificatorEntity() {
     }
 
-    public EventNotificatorEntity(Integer id, Integer eventId, Integer changedByUserId, Integer ownerId, Map<String, FieldChange<?>> changes, List<String> participants, LocalDateTime createdAt, boolean read) {
+    public EventNotificatorEntity(Integer id, Integer eventId, Integer changedByUserId, String userLogin, Integer ownerId, Map<String, FieldChange<?>> changes, LocalDateTime createdAt, boolean read) {
         this.id = id;
         this.eventId = eventId;
         this.changedByUserId = changedByUserId;
+        this.userLogin = userLogin;
         this.ownerId = ownerId;
         this.changes = changes;
-        this.participants = participants;
         this.createdAt = createdAt;
         this.read = read;
     }
@@ -73,14 +67,6 @@ public class EventNotificatorEntity {
 
     public void setChanges(Map<String, FieldChange<?>> changes) {
         this.changes = changes;
-    }
-
-    public List<String> getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(List<String> participants) {
-        this.participants = participants;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -113,5 +99,13 @@ public class EventNotificatorEntity {
 
     public void setEventId(Integer eventId) {
         this.eventId = eventId;
+    }
+
+    public String getUserLogin() {
+        return userLogin;
+    }
+
+    public void setUserLogin(String userLogin) {
+        this.userLogin = userLogin;
     }
 }
